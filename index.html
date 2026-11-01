@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jannatul Ferdous | Computer Science Student</title>
+
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- EmailJS SDK (sends the contact form from the browser, no backend needed) -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<style>
+  :root{
+    --powder-50:#f5fafd;
+    --powder-100:#e8f4fa;
+    --powder-200:#d3e9f5;
+    --powder-300:#b3d9ec;
+    --powder-400:#8ec3de;
+    --powder-500:#5fa4c9;
+    --powder-600:#3d84ac;
+    --powder-700:#2e6a8c;
+    --navy:#1c3550;
+    --ink:#2a3b4d;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    font-family:"Times New Roman", Times, Georgia, serif;
+    background:#ffffff;
+    color:var(--ink);
+    overflow-x:hidden;
+  }
+
+  h1,h2,h3,h4,.brand{
+    font-family:"Times New Roman", Times, Georgia, serif;
+    color:var(--navy);
+  }
+
+  /* ---------- soft powder-blue washes ---------- */
+  .bg-wash{
+    background:
+      radial-gradient(60% 50% at 85% 0%, rgba(179,217,236,0.35) 0%, rgba(179,217,236,0) 70%),
+      radial-gradient(50% 40% at 0% 20%, rgba(179,217,236,0.28) 0%, rgba(179,217,236,0) 70%),
+      #ffffff;
+  }
+
+  .panel{
+    background:rgba(232,244,250,0.55);
+    border:1px solid rgba(179,217,236,0.6);
+    backdrop-filter:blur(6px);
+  }
+
+  .glass{
+    background:rgba(255,255,255,0.6);
+    border:1px solid rgba(179,217,236,0.7);
+    backdrop-filter:blur(8px);
+  }
+
+  /* ---------- buttons ---------- */
+  .btn{
+    font-size:14px;
+    font-family:"Times New Roman", Times, serif;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 22px;
+    border-radius:999px;
+    transition:transform .25s ease, box-shadow .25s ease, background .25s ease, color .25s ease;
+    white-space:nowrap;
+  }
+  .btn-primary{
+    background:var(--powder-600);
+    color:#fff;
+    box-shadow:0 6px 16px -6px rgba(61,132,172,0.55);
+  }
+  .btn-primary:hover{
+    background:var(--powder-700);
+    transform:translateY(-2px);
+    box-shadow:0 10px 22px -6px rgba(61,132,172,0.6);
+  }
+  .btn-outline{
+    background:rgba(255,255,255,0.7);
+    color:var(--powder-700);
+    border:1px solid var(--powder-400);
+  }
+  .btn-outline:hover{
+    background:var(--powder-100);
+    transform:translateY(-2px);
+  }
+  .btn-ghost{
+    background:rgba(255,255,255,0.55);
+    color:var(--navy);
+    border:1px solid rgba(179,217,236,0.8);
+  }
+  .btn-ghost:hover{
+    background:var(--powder-100);
+  }
+
+  /* ---------- nav underline ---------- */
+  .nav-link{
+    position:relative;
+    color:var(--ink);
+    padding-bottom:4px;
+  }
+  .nav-link::after{
+    content:"";
+    position:absolute;
+    left:0; bottom:0;
+    width:0%; height:2px;
+    background:var(--powder-600);
+    transition:width .3s ease;
+  }
+  .nav-link:hover::after,
+  .nav-link.active::after{ width:100%; }
+  .nav-link.active{ color:var(--powder-700); }
+
+  /* ---------- fade-in-on-scroll ---------- */
+  .reveal{
+    opacity:0;
+    transform:translateY(18px);
+    transition:opacity .7s ease, transform .7s ease;
+  }
+  .reveal.in-view{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  /* hero entrance (single orchestrated sequence) */
+  .hero-item{
+    opacity:0;
+    transform:translateY(14px);
+    animation:heroIn .8s ease forwards;
+  }
+  @keyframes heroIn{ to{ opacity:1; transform:translateY(0); } }
+
+  /* gentle floating sparkles around hero photo */
+  .sparkle{
+    position:absolute;
+    color:var(--powder-500);
+    animation:float 4s ease-in-out infinite;
+  }
+  @keyframes float{
+    0%,100%{ transform:translateY(0) rotate(0deg); }
+    50%{ transform:translateY(-10px) rotate(8deg); }
+  }
+
+  /* ---------- skill bars ---------- */
+  .skill-track{
+    height:8px;
+    border-radius:999px;
+    background:var(--powder-100);
+    overflow:hidden;
+  }
+  .skill-fill{
+    height:100%;
+    border-radius:999px;
+    background:linear-gradient(90deg, var(--powder-400), var(--powder-600));
+    width:0%;
+    transition:width 1.1s cubic-bezier(.22,.9,.3,1);
+  }
+
+  /* ---------- horizontal scroll rows (no native scrollbar) ---------- */
+  .scroll-row{
+    display:flex;
+    gap:24px;
+    overflow-x:auto;
+    scroll-behavior:smooth;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+    padding:6px 4px 18px 4px;
+  }
+  .scroll-row::-webkit-scrollbar{ display:none; }
+
+  .scroll-arrow{
+    width:38px;
+    height:38px;
+    border-radius:999px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(255,255,255,0.85);
+    border:1px solid var(--powder-300);
+    color:var(--powder-700);
+    transition:background .2s ease, transform .2s ease, box-shadow .2s ease;
+    box-shadow:0 4px 12px -4px rgba(61,132,172,0.35);
+  }
+  .scroll-arrow:hover{
+    background:var(--powder-500);
+    color:#fff;
+    transform:scale(1.06);
+  }
+
+  /* ---------- cards ---------- */
+  .card{
+    background:#fff;
+    border:1px solid var(--powder-200);
+    border-radius:18px;
+    transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+  }
+  .card:hover{
+    transform:translateY(-6px);
+    box-shadow:0 20px 34px -18px rgba(28,53,80,0.28);
+    border-color:var(--powder-400);
+  }
+  .card-media{
+    overflow:hidden;
+    border-radius:18px 18px 0 0;
+  }
+  .card-media img{
+    transition:transform .5s ease;
+  }
+  .card:hover .card-media img{
+    transform:scale(1.08);
+  }
+
+  .tag{
+    font-size:12px;
+    padding:3px 10px;
+    border-radius:999px;
+    background:var(--powder-100);
+    color:var(--powder-700);
+    border:1px solid var(--powder-300);
+  }
+
+  /* ---------- modal ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0;
+    background:rgba(28,53,80,0.35);
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .3s ease;
+    z-index:100;
+  }
+  .modal-backdrop.open{
+    opacity:1;
+    pointer-events:auto;
+  }
+  .modal-box{
+    background:#ffffff;
+    border:1px solid var(--powder-300);
+    border-radius:20px;
+    max-width:480px;
+    width:100%;
+    max-height:88vh;
+    overflow-y:auto;
+    transform:scale(.92) translateY(10px);
+    transition:transform .3s ease;
+    box-shadow:0 30px 60px -20px rgba(28,53,80,0.45);
+  }
+  .modal-backdrop.open .modal-box{
+    transform:scale(1) translateY(0);
+  }
+  .modal-box::-webkit-scrollbar{ width:6px; }
+  .modal-box::-webkit-scrollbar-thumb{ background:var(--powder-300); border-radius:999px; }
+
+  input, textarea{
+    font-family:"Times New Roman", Times, serif;
+  }
+  input:focus, textarea:focus{
+    outline:none;
+    border-color:var(--powder-500);
+    box-shadow:0 0 0 3px rgba(95,164,201,0.25);
+  }
+
+  ::selection{ background:var(--powder-300); color:var(--navy); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+  }
+
+  /* ---------- typewriter cursor (hero role + footer) ---------- */
+  .typing-cursor::after{
+    content:"|";
+    margin-left:2px;
+    color:var(--powder-600);
+    animation:blink 1s step-start infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  /* contact form status message */
+  #form-note.ok{ color:#2f7d4f; }
+  #form-note.err{ color:#b3402f; }
+</style>
+</head>
+
+<body class="bg-wash">
+
+<!-- ================= NAVBAR ================= -->
+<header class="fixed top-0 left-0 w-full z-50 glass">
+  <div class="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
+    <a href="#home" class="brand text-xl font-bold flex items-center gap-2">
+      <span>🪶</span> Jannat
+    </a>
+
+    <nav class="hidden lg:flex items-center gap-7 text-[15px]">
+      <a href="#home" class="nav-link active">Home</a>
+      <a href="#about" class="nav-link">About</a>
+      <a href="#skills" class="nav-link">Skills</a>
+      <a href="#education" class="nav-link">Education</a>
+      <a href="#projects" class="nav-link">Projects</a>
+      <a href="#research" class="nav-link">Research</a>
+      <a href="#certificates" class="nav-link">Certificates</a>
+      <a href="#contact" class="nav-link">Contact</a>
+    </nav>
+
+    <div class="flex items-center gap-3">
+      <!-- Opens the resume PDF in a new tab -->
+      <a href="resume/Jannatul_Ferdous_Resume.pdf" target="_blank" rel="noopener" class="btn btn-primary">Download CV</a>
+      <button id="nav-toggle" class="lg:hidden btn-ghost btn" aria-label="Menu">☰</button>
+    </div>
+  </div>
+
+  <!-- mobile menu -->
+  <nav id="mobile-menu" class="hidden lg:hidden flex-col gap-1 px-6 pb-4 text-[15px]">
+    <a href="#home" class="nav-link py-2">Home</a>
+    <a href="#about" class="nav-link py-2">About</a>
+    <a href="#skills" class="nav-link py-2">Skills</a>
+    <a href="#education" class="nav-link py-2">Education</a>
+    <a href="#projects" class="nav-link py-2">Projects</a>
+    <a href="#research" class="nav-link py-2">Research</a>
+    <a href="#certificates" class="nav-link py-2">Certificates</a>
+    <a href="#contact" class="nav-link py-2">Contact</a>
+  </nav>
+</header>
+
+<!-- ================= HERO ================= -->
+<section id="home" class="max-w-6xl mx-auto px-6 pt-32 pb-20 grid md:grid-cols-2 gap-12 items-center">
+  <div>
+    <p class="hero-item text-lg text-[--navy] opacity-80" style="animation-delay:.05s">Hello, I'm</p>
+    <h1 class="hero-item text-5xl md:text-6xl font-bold mb-4" style="animation-delay:.15s">Jannatul Ferdous</h1>
+    <p id="typed-role" class="hero-item typing-cursor text-lg md:text-xl mb-5 min-h-[1.75rem]" style="animation-delay:.25s">Computer Science Student</p>
+    <p class="hero-item mb-8 text-[15px] leading-relaxed max-w-md opacity-90" style="animation-delay:.4s">
+      I am a Computer Science student passionate about Artificial Intelligence, Machine Learning,
+      Cybersecurity, Computer Vision and modern technology. I enjoy learning new technologies and
+      building practical solutions through programming.
+    </p>
+    <div class="hero-item flex flex-wrap gap-4" style="animation-delay:.5s">
+      <a href="#contact" class="btn btn-primary">✉ Contact Me</a>
+      <a href="#projects" class="btn btn-outline">View My Work →</a>
+      <a href="resume/Jannatul_Ferdous_Resume.pdf" target="_blank" rel="noopener" class="btn btn-ghost">📄 Download CV</a>
+    </div>
+  </div>
+
+  <div class="relative flex justify-center">
+    <span class="sparkle" style="top:0; right:20%;">✦</span>
+    <span class="sparkle" style="bottom:10%; left:6%; animation-delay:1s;">✦</span>
+    <span class="sparkle" style="top:35%; right:2%; animation-delay:2s;">✦</span>
+
+    <div class="relative w-72 h-72 md:w-80 md:h-80 rounded-full p-2" style="border:1.5px solid var(--powder-300);">
+      <!-- Put your photo at images/Jannat.jpeg -->
+      <img src="images/Jannat.jpeg" alt="Jannatul Ferdous profile photo"
+           class="w-full h-full object-cover rounded-full" data-placeholder="Add photo" />
+    </div>
+
+    <div class="absolute -right-4 md:-right-10 top-1/2 -translate-y-1/2 flex flex-col gap-3">
+      <p class="text-xs mb-1 opacity-70 text-center">Follow Me</p>
+      <a href="https://github.com/Jannatulx" target="_blank" rel="noopener" class="scroll-arrow" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.94c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.17.08 1.78 1.2 1.78 1.2 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.64 1.59.24 2.76.12 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.4-5.27 5.69.42.36.78 1.08.78 2.17v3.22c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/></svg></a>
+      <a href="https://www.linkedin.com/in/jannatul-ferdous-a371b8401?utm_source=share_via&amp;utm_content=profile&amp;utm_medium=member_android" target="_blank" rel="noopener" class="scroll-arrow" aria-label="LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.15 1.45-2.15 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13ZM7.12 20.45H3.56V9h3.56v11.45Z"/></svg></a>
+      <a href="mailto:jannatulferdous885544@gmail.com" class="scroll-arrow" aria-label="Email"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M2 4h20v16H2V4Zm2 2v.4l8 5.7 8-5.7V6H4Zm16 2.4-7.4 5.28a1 1 0 0 1-1.2 0L4 8.4V18h16V8.4Z"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ABOUT + EDUCATION ================= -->
+<section id="about" class="max-w-6xl mx-auto px-6 py-16 grid lg:grid-cols-2 gap-8">
+  <div class="panel rounded-2xl p-8 reveal">
+    <h2 class="text-2xl font-bold mb-4 flex items-center gap-3"><span>🧑‍💻</span> About Me</h2>
+    <p class="leading-relaxed text-[15px] mb-4">
+      I am a Computer Science and Engineering student at International Islamic University Chittagong.
+      I enjoy exploring technology, learning new programming concepts and developing practical projects.
+    </p>
+    <p class="leading-relaxed text-[15px] mb-6">
+      My academic journey has allowed me to work with Artificial Intelligence, Machine Learning,
+      Computer Vision, Cybersecurity, Web Development and Blockchain.
+    </p>
+    <div class="grid grid-cols-2 gap-4 text-[15px]">
+      <p class="flex items-center gap-2">🤖 AI &amp; Machine Learning</p>
+      <p class="flex items-center gap-2">👁️ Computer Vision</p>
+      <p class="flex items-center gap-2">🔐 Cybersecurity</p>
+      <p class="flex items-center gap-2">💻 Web Development</p>
+    </div>
+  </div>
+
+  <div id="education" class="grid gap-5 reveal">
+    <h2 class="text-2xl font-bold flex items-center gap-3"><span>🎓</span> Education</h2>
+    <div class="panel rounded-2xl p-5 flex items-start gap-4">
+      <div class="w-10 h-10 shrink-0 rounded-full flex items-center justify-center" style="background:var(--powder-200);">🎓</div>
+      <div>
+        <p class="font-bold">B.Sc. in Computer Science and Engineering</p>
+        <p class="text-[14px] opacity-80">International Islamic University Chittagong</p>
+        <p class="text-[14px] opacity-80">2022 – Present</p>
+      </div>
+    </div>
+    <div class="panel rounded-2xl p-5 flex items-start gap-4">
+      <div class="w-10 h-10 shrink-0 rounded-full flex items-center justify-center" style="background:var(--powder-200);">🏫</div>
+      <div>
+        <p class="font-bold">Higher Secondary Certificate (HSC)</p>
+        <p class="text-[14px] opacity-80">BAF Shaheen College Chittagong</p>
+        <p class="text-[14px] opacity-80">2020 &nbsp;|&nbsp; GPA: 5.00 / 5.00</p>
+      </div>
+    </div>
+    <div class="panel rounded-2xl p-5 flex items-start gap-4">
+      <div class="w-10 h-10 shrink-0 rounded-full flex items-center justify-center" style="background:var(--powder-200);">📖</div>
+      <div>
+        <p class="font-bold">Secondary School Certificate (SSC)</p>
+        <p class="text-[14px] opacity-80">Bangladesh Mahila Samiti Girls High School &amp; College</p>
+        <p class="text-[14px] opacity-80">2018 &nbsp;|&nbsp; GPA: 5.00 / 5.00</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SKILLS ================= -->
+<section id="skills" class="max-w-6xl mx-auto px-6 py-16">
+  <div class="reveal mb-8">
+    <h2 class="text-2xl font-bold flex items-center gap-3"><span>🧰</span> Skills</h2>
+    <p class="text-[15px] opacity-80 mt-1">My technical skills and proficiency levels</p>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-x-12 gap-y-6 reveal">
+    <div class="skill" data-level="80"><div class="flex justify-between text-[15px] mb-1"><span>JavaScript</span><span class="skill-pct">0%</span></div><div class="skill-track"><div class="skill-fill"></div></div></div>
+    <div class="skill" data-level="85"><div class="flex justify-between text-[15px] mb-1"><span>React</span><span class="skill-pct">0%</span></div><div class="skill-track"><div class="skill-fill"></div></div></div>
+    <div class="skill" data-level="75"><div class="flex justify-between text-[15px] mb-1"><span>Node.js</span><span class="skill-pct">0%</span></div><div class="skill-track"><div class="skill-fill"></div></div></div>
+    <div class="skill" data-level="70"><div class="flex justify-between text-[15px] mb-1"><span>Express.js</span><span class="skill-pct">0%</span></div><div class="skill-track"><div class="skill-fill"></div></div></div>
+    <div class="skill" data-level="72"><div class="flex justify-between text-[15px] mb-1"><span>MongoDB</span><span class="skill-pct">0%</span></div><div class="skill-track"><div class="skill-fill"></div></div></div>
+    <div class="skill" data-level="88"><div class="flex justify-between text-[15px] mb-1"><span>HTML &amp; CSS</span><span class="skill-pct">0%</span></div><div class="skill-track"><div class="skill-fill"></div></div></div>
+    <div class="skill" data-level="65"><div class="flex justify-between text-[15px] mb-1"><span>Python</span><span class="skill-pct">0%</span></div><div class="skill-track"><div class="skill-fill"></div></div></div>
+    <div class="skill" data-level="55"><div class="flex justify-between text-[15px] mb-1"><span>Git &amp; GitHub</span><span class="skill-pct">0%</span></div><div class="skill-track"><div class="skill-fill"></div></div></div>
+  </div>
+</section>
+
+<!-- ================= PROJECTS ================= -->
+<section id="projects" class="max-w-6xl mx-auto px-6 py-16">
+  <div class="reveal mb-8 flex items-end justify-between flex-wrap gap-4">
+    <div>
+      <h2 class="text-2xl font-bold flex items-center gap-3"><span>💻</span> Projects</h2>
+      <p class="text-[15px] opacity-80 mt-1">Academic and personal projects in web development, AI, cybersecurity and blockchain</p>
+    </div>
+    <div class="flex gap-3">
+      <button class="scroll-arrow" data-scroll="projects-row" data-dir="-1" aria-label="Scroll left">‹</button>
+      <button class="scroll-arrow" data-scroll="projects-row" data-dir="1" aria-label="Scroll right">›</button>
+    </div>
+  </div>
+
+  <div id="projects-row" class="scroll-row reveal"></div>
+</section>
+
+<!-- ================= RESEARCH ================= -->
+<section id="research" class="max-w-6xl mx-auto px-6 py-16">
+  <div class="reveal mb-8">
+    <h2 class="text-2xl font-bold flex items-center gap-3"><span>🔬</span> Research</h2>
+    <p class="text-[15px] opacity-80 mt-1">My ongoing research work</p>
+  </div>
+
+  <div class="panel rounded-2xl p-5 md:p-6 flex flex-col sm:flex-row gap-5 items-start reveal">
+    <!-- Put your research image at images/research.jpg -->
+    <img src="images/research.jpg" alt="Research illustration"
+         class="w-full sm:w-32 h-40 sm:h-32 shrink-0 object-cover rounded-xl" data-placeholder="Add research image" />
+
+    <div class="flex-1 w-full">
+      <div class="flex flex-wrap items-center gap-3 mb-2">
+        <h3 class="text-lg md:text-xl font-bold">Interpretable Deep Learning for IoT Intrusion Detection</h3>
+        <span class="tag">Ongoing</span>
+      </div>
+      <p class="text-[14px] opacity-80 mb-5">Machine Learning &nbsp;•&nbsp; Cybersecurity &nbsp;•&nbsp; Explainable AI</p>
+
+      <div class="skill" data-level="70">
+        <div class="flex justify-between text-[14px] mb-1 opacity-80"><span>Research Progress</span><span class="skill-pct">0%</span></div>
+        <div class="skill-track"><div class="skill-fill"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CERTIFICATES ================= -->
+<section id="certificates" class="max-w-6xl mx-auto px-6 py-16">
+  <div class="reveal mb-8 flex items-end justify-between flex-wrap gap-4">
+    <div>
+      <h2 class="text-2xl font-bold flex items-center gap-3"><span>📜</span> Certificates &amp; Activities</h2>
+      <p class="text-[15px] opacity-80 mt-1">Seminars, workshops and learning beyond the classroom</p>
+    </div>
+    <div class="flex gap-3">
+      <button class="scroll-arrow" data-scroll="certs-row" data-dir="-1" aria-label="Scroll left">‹</button>
+      <button class="scroll-arrow" data-scroll="certs-row" data-dir="1" aria-label="Scroll right">›</button>
+    </div>
+  </div>
+
+  <div id="certs-row" class="scroll-row reveal"></div>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section id="contact" class="max-w-6xl mx-auto px-6 py-16 grid lg:grid-cols-2 gap-10">
+  <div class="reveal">
+    <h2 class="text-2xl font-bold flex items-center gap-3 mb-2"><span>✉️</span> Contact</h2>
+    <p class="text-[15px] opacity-80 mb-8">Feel free to reach out for opportunities, collaboration or simply to connect.</p>
+
+    <div class="grid gap-5 text-[15px]">
+      <div class="flex items-center gap-4">
+        <div class="w-11 h-11 rounded-full flex items-center justify-center" style="background:var(--powder-200);">📧</div>
+        <div><p class="opacity-70 text-sm">Email</p><a href="mailto:jannatulferdous885544@gmail.com" class="font-bold break-all">jannatulferdous885544@gmail.com</a></div>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="w-11 h-11 rounded-full flex items-center justify-center" style="background:var(--powder-200);">📞</div>
+        <div><p class="opacity-70 text-sm">Phone</p><p class="font-bold">+880 1835885544</p></div>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="w-11 h-11 rounded-full flex items-center justify-center" style="background:var(--powder-200);">📍</div>
+        <div><p class="opacity-70 text-sm">Location</p><p class="font-bold">Chattogram, Bangladesh</p></div>
+      </div>
+    </div>
+
+    <p class="text-sm mt-8 mb-3 opacity-70">Follow Me</p>
+    <div class="flex gap-3">
+      <a href="https://github.com/Jannatulx" target="_blank" rel="noopener" class="scroll-arrow" aria-label="GitHub"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.94c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.17.08 1.78 1.2 1.78 1.2 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.64 1.59.24 2.76.12 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.4-5.27 5.69.42.36.78 1.08.78 2.17v3.22c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/></svg></a>
+      <a href="https://www.linkedin.com/in/jannatul-ferdous-a371b8401?utm_source=share_via&amp;utm_content=profile&amp;utm_medium=member_android" target="_blank" rel="noopener" class="scroll-arrow" aria-label="LinkedIn"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.15 1.45-2.15 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13ZM7.12 20.45H3.56V9h3.56v11.45Z"/></svg></a>
+      <a href="mailto:jannatulferdous885544@gmail.com" class="scroll-arrow" aria-label="Email"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M2 4h20v16H2V4Zm2 2v.4l8 5.7 8-5.7V6H4Zm16 2.4-7.4 5.28a1 1 0 0 1-1.2 0L4 8.4V18h16V8.4Z"/></svg></a>
+    </div>
+  </div>
+
+  <form id="contact-form" class="glass rounded-2xl p-8 reveal grid gap-5">
+    <div>
+      <label class="text-sm block mb-1.5 opacity-80" for="name">Your Name</label>
+      <input id="name" name="name" type="text" required placeholder="Enter your name"
+        class="w-full px-4 py-2.5 rounded-lg border bg-white/70 text-[15px]" style="border-color:var(--powder-300);" />
+    </div>
+    <div>
+      <label class="text-sm block mb-1.5 opacity-80" for="email">Your Email</label>
+      <input id="email" name="email" type="email" required placeholder="Enter your email"
+        class="w-full px-4 py-2.5 rounded-lg border bg-white/70 text-[15px]" style="border-color:var(--powder-300);" />
+    </div>
+    <div>
+      <label class="text-sm block mb-1.5 opacity-80" for="message">Message</label>
+      <textarea id="message" name="message" required rows="5" placeholder="Type your message..."
+        class="w-full px-4 py-2.5 rounded-lg border bg-white/70 text-[15px] resize-none" style="border-color:var(--powder-300);"></textarea>
+    </div>
+    <button id="send-btn" type="submit" class="btn btn-primary justify-center">Send Message</button>
+    <p id="form-note" class="text-sm text-center hidden" role="status"></p>
+  </form>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="border-t" style="border-color:var(--powder-200);">
+  <div class="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between flex-wrap gap-3 text-sm opacity-70">
+    <p class="flex items-center gap-2">🪶 Jannat</p>
+    <p>© 2026 Jannatul Ferdous. All rights reserved.</p>
+    <!-- Typewriter text (edit the lines in script.js → footerLines) -->
+    <p id="footer-typed" class="typing-cursor min-h-[1.25rem]" aria-live="off">Code • Learn • Build • Grow</p>
+  </div>
+</footer>
+
+<!-- ================= PROJECT MODAL ================= -->
+<div id="project-modal" class="modal-backdrop">
+  <div class="modal-box p-7">
+    <div class="flex justify-between items-start mb-4">
+      <div class="flex flex-wrap gap-2" id="modal-tags"></div>
+      <button class="scroll-arrow" id="close-project-modal" aria-label="Close">✕</button>
+    </div>
+    <img id="modal-image" src="" alt="" class="w-full h-44 object-cover rounded-xl mb-4" />
+    <p id="modal-category" class="text-sm font-bold mb-1" style="color:var(--powder-700);"></p>
+    <h3 id="modal-title" class="text-xl font-bold mb-2"></h3>
+    <p id="modal-desc" class="text-[15px] leading-relaxed opacity-90 mb-6"></p>
+    <div class="flex gap-3 flex-wrap">
+      <a id="modal-github" href="#" target="_blank" rel="noopener" class="btn btn-outline">GitHub</a>
+    </div>
+  </div>
+</div>
+
+<!-- ================= CERTIFICATE MODAL ================= -->
+<div id="cert-modal" class="modal-backdrop">
+  <div class="modal-box p-7">
+    <div class="flex justify-end mb-3">
+      <button class="scroll-arrow" id="close-cert-modal" aria-label="Close">✕</button>
+    </div>
+    <img id="cert-image" src="" alt="" class="w-full rounded-xl mb-4 border" style="border-color:var(--powder-300);" />
+    <h3 id="cert-title" class="text-lg font-bold mb-1"></h3>
+    <p id="cert-issuer" class="text-[14px] opacity-75"></p>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
